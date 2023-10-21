@@ -1,31 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
+import 'package:wishes_app/models/wish.dart';
 
 class WishCardBig extends StatelessWidget {
-  const WishCardBig({super.key});
+  const WishCardBig({
+    super.key,
+    required this.wish,
+  });
+
+  final Wish wish;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 223, 243, 249),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        width: 350,
-        height: 300,
-        child: Column(
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.hardEdge,
+      elevation: 2,
+      child: InkWell(
+        onTap: () {},
+        child: Stack(
           children: [
-            Image.asset(
-              'assets/images/card_example_1.png',
-              fit: BoxFit.contain,
-              width: 350,
-              height: 300,
+            FadeInImage(
+              placeholder: MemoryImage(kTransparentImage),
+              image: NetworkImage(wish.imageUrl),
+              fit: BoxFit.cover,
+              height: double.infinity,
+              width: double.infinity,
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(
-                horizontal: 10.0,
+            Positioned(
+              top: 20,
+              left: 20,
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16.0),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text(wish.category.title.toString()),
+                ),
               ),
+            ),
+            Positioned(
+              bottom: 20,
+              left: 10,
+              right: 10,
               child: Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
@@ -40,45 +60,63 @@ class WishCardBig extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Polaroid Go White',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w600,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                wish.title,
+                                style: const TextStyle(
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 5.0),
-                          const Text(
-                            '\$300',
-                            style: TextStyle(
-                              fontSize: 26.0,
-                              fontWeight: FontWeight.w800,
-                            ),
+                          Row(
+                            children: [
+                              Text(
+                                '\$${wish.price}',
+                                style: const TextStyle(
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 18.0),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              const SizedBox(
-                                width: 240,
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width * 0.50,
                                 child: Text(
-                                  'https://www.polaroid.com/collections/now-plus-camera',
+                                  wish.itemUrl,
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ),
-                              FloatingActionButton(
-                                heroTag: null,
-                                mini: true,
-                                backgroundColor: Colors.white,
-                                onPressed: () {},
-                                child: const Icon(
-                                  Icons.copy_all,
-                                  size: 15,
-                                  color: Colors.black,
+                              SizedBox(
+                                // child: ElevatedButton(
+                                //   onPressed: () => {},
+                                //   child: const Icon(
+                                //     Icons.copy_all,
+                                //     size: 15,
+                                //     color: Colors.black,
+                                //   ),
+                                // ),
+                                child: FloatingActionButton(
+                                  heroTag: null,
+                                  mini: true,
+                                  backgroundColor: Colors.white,
+                                  onPressed: () {},
+                                  child: const Icon(
+                                    Icons.copy_all,
+                                    size: 15,
+                                    color: Colors.black,
+                                  ),
                                 ),
                               ),
                             ],
@@ -89,7 +127,7 @@ class WishCardBig extends StatelessWidget {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

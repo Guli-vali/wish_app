@@ -1,71 +1,83 @@
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
+import 'package:wishes_app/models/wish.dart';
 
 class WishCardShort extends StatelessWidget {
-  const WishCardShort({super.key});
+  const WishCardShort({
+    super.key,
+    required this.wish,
+  });
+
+  final Wish wish;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 223, 207, 249),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        width: 400,
-        height: 300,
-        child: Column(
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.hardEdge,
+      elevation: 2,
+      child: InkWell(
+        onTap: () {},
+        child: Stack(
           children: [
-            Image.asset(
-              'assets/images/card_example_2.png',
-              fit: BoxFit.contain,
-              width: 350,
-              height: 200,
+            FadeInImage(
+              placeholder: MemoryImage(kTransparentImage),
+              image: NetworkImage(wish.imageUrl),
+              fit: BoxFit.cover,
+              height: 300,
+              width: double.infinity,
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(
-                horizontal: 10.0,
-              ),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16.0),
+            Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Container(
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 10.0,
                 ),
-                elevation: 2,
-                child: const Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'French bulldog, white',
-                            style: TextStyle(
-                              fontSize: 14.0,
-                              fontWeight: FontWeight.w600,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16.0),
+                  ),
+                  elevation: 2,
+                  child: Padding(
+                    padding: EdgeInsets.all(15.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              wish.title,
+                              style: const TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                          Text(
-                            '\$500',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w800,
+                            Text(
+                              '\$${wish.price}',
+                              style: TextStyle(
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w800,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Icon(Icons.arrow_forward),
-                        ],
-                      )
-                    ],
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Icon(Icons.arrow_forward),
+                          ],
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

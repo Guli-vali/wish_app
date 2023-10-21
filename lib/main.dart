@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:wishes_app/screens/tabs.dart';
 
 void main() {
-  runApp(const WishesApp());
+  runApp(
+    const ProviderScope(
+      child: WishesApp(),
+    ),
+  );
 }
 
 class WishesApp extends StatelessWidget {
