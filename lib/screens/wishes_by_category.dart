@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wishes_app/models/categories.dart';
 import 'package:wishes_app/models/wish.dart';
 import 'package:wishes_app/providers/wishes_provider.dart';
 import 'package:wishes_app/widgets/page_indicators.dart';
@@ -7,14 +8,22 @@ import 'package:wishes_app/widgets/presentation_modes.dart';
 import 'package:wishes_app/widgets/wish_card_big.dart';
 import 'package:wishes_app/widgets/wish_card_short.dart';
 
-class AllWishesScreen extends ConsumerStatefulWidget {
-  const AllWishesScreen({super.key});
+// ignore: must_be_immutable
+class CategoryWishes extends ConsumerStatefulWidget {
+  CategoryWishes({
+    super.key,
+    // ignore: avoid_init_to_null
+    this.catetoryToFilter = null,
+  });
+
+  // ignore: prefer_typing_uninitialized_variables
+  Category? catetoryToFilter;
 
   @override
-  ConsumerState<AllWishesScreen> createState() => _AllWishesScreenState();
+  ConsumerState<CategoryWishes> createState() => _CategoryWishesState();
 }
 
-class _AllWishesScreenState extends ConsumerState<AllWishesScreen> {
+class _CategoryWishesState extends ConsumerState<CategoryWishes> {
   late Future<void> _wishesFuture;
 
   int activePage = 0;
@@ -52,8 +61,24 @@ class _AllWishesScreenState extends ConsumerState<AllWishesScreen> {
       );
     }
 
-    Widget wishesList(
-        List<Wish> wishes, List<bool> selectedMode, Size screenSize) {
+    Widget wishesList(List<Wish> wishes, List<bool> selectedMode,
+        Size screenSize, Category? catetoryToFilter) {
+      if (catetoryToFilter != null) {
+        wishes = wishes.where((wish) {
+          if (catetoryToFilter.type == wish.category.type) {
+            return true;
+          }
+          return false;
+        }).toList();
+      }
+      if (wishes.isEmpty) {
+        return Center(
+          child: Text(
+            'No wishes yet 👀 ',
+            style: Theme.of(context).textTheme.displaySmall,
+          ),
+        );
+      }
       if (screenSize.width > 600) {
         return getWideWishesWidget(wishes);
       }
@@ -119,39 +144,40 @@ class _AllWishesScreenState extends ConsumerState<AllWishesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'My wishes',
+                  "${widget.catetoryToFilter!.title} wishes",
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 20.0),
                 if (screenSize.width < 600)
-                  Center(
-                    child: ToggleButtons(
-                      direction: Axis.horizontal,
-                      onPressed: (int index) {
-                        setState(() {
-                          // The button that is tapped is set to true, and the others to false.
-                          for (int i = 0;
-                              i < _selectedPresentationMode.length;
-                              i++) {
-                            _selectedPresentationMode[i] = i == index;
-                          }
-                        });
-                      },
-                      constraints: BoxConstraints(
-                          minWidth:
-                              (MediaQuery.of(context).size.width - 50) / 2),
-                      isSelected: _selectedPresentationMode,
-                      children: presentationMode,
+                  if (!wishes.isEmpty)
+                    Center(
+                      child: ToggleButtons(
+                        direction: Axis.horizontal,
+                        onPressed: (int index) {
+                          setState(() {
+                            // The button that is tapped is set to true, and the others to false.
+                            for (int i = 0;
+                                i < _selectedPresentationMode.length;
+                                i++) {
+                              _selectedPresentationMode[i] = i == index;
+                            }
+                          });
+                        },
+                        constraints: BoxConstraints(
+                            minWidth:
+                                (MediaQuery.of(context).size.width - 50) / 2),
+                        isSelected: _selectedPresentationMode,
+                        children: presentationMode,
+                      ),
                     ),
-                  ),
                 const SizedBox(height: 20.0),
                 FutureBuilder(
                   future: _wishesFuture,
                   builder: (context, snapshot) =>
                       snapshot.connectionState == ConnectionState.waiting
                           ? const Center(child: CircularProgressIndicator())
-                          : wishesList(
-                              wishes, _selectedPresentationMode, screenSize),
+                          : wishesList(wishes, _selectedPresentationMode,
+                              screenSize, widget.catetoryToFilter),
                 ),
               ],
             ),

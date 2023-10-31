@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wishes_app/models/wish.dart';
 
 class WishCardBig extends StatelessWidget {
@@ -10,16 +12,20 @@ class WishCardBig extends StatelessWidget {
 
   final Wish wish;
 
+  Future<void> _launchUrl() async {
+    final Uri _url = Uri.parse(wish.itemUrl);
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
       clipBehavior: Clip.hardEdge,
       elevation: 2,
       child: InkWell(
-        onTap: () {},
+        onTap: () => _launchUrl(),
         child: Stack(
           children: [
             FadeInImage(
@@ -53,74 +59,53 @@ class WishCardBig extends StatelessWidget {
                 elevation: 2,
                 child: Padding(
                   padding: EdgeInsets.all(15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                wish.title,
-                                style: const TextStyle(
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            wish.title,
+                            style: Theme.of(context).textTheme.titleMedium!.copyWith(fontSize: 18),
                           ),
                           const SizedBox(height: 5.0),
-                          Row(
-                            children: [
-                              Text(
-                                '\$${wish.price}',
-                                style: const TextStyle(
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ],
+                          Text(
+                            '\$${wish.price}',
+                            style: Theme.of(context).textTheme.labelLarge!.copyWith(fontSize: 18),
                           ),
-                          const SizedBox(height: 18.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              SizedBox(
-                                width: MediaQuery.of(context).size.width * 0.50,
-                                child: Text(
-                                  wish.itemUrl,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                // child: ElevatedButton(
-                                //   onPressed: () => {},
-                                //   child: const Icon(
-                                //     Icons.copy_all,
-                                //     size: 15,
-                                //     color: Colors.black,
-                                //   ),
-                                // ),
-                                child: FloatingActionButton(
-                                  heroTag: null,
-                                  mini: true,
-                                  backgroundColor: Colors.white,
-                                  onPressed: () {},
-                                  child: const Icon(
-                                    Icons.copy_all,
-                                    size: 15,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ],
+                        ],
+                      ),
+                      const SizedBox(height: 18.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              wish.itemUrl,
+                              softWrap: false,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
                           ),
+                          FloatingActionButton(
+                            heroTag: null,
+                            mini: true,
+                            backgroundColor: Colors.white,
+                            foregroundColor: Colors.black,
+                            onPressed: () async {
+                              await Clipboard.setData(
+                                  ClipboardData(text: wish.itemUrl));
+                              // copied successfully
+                            },
+                            child: const Icon(
+                              Icons.copy_all,
+                              size: 15,
+                            ),
+                          ),
+
                         ],
                       ),
                     ],

@@ -19,7 +19,7 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
   @override
   void initState() {
     super.initState();
-    _wishesFuture = ref.read(wishesProvider.notifier).loadWishes();
+    _wishesFuture = ref.read(wishesProvider.notifier).pocketLoadWishes();
   }
 
   void _navigateToAllWishes(BuildContext context) {
@@ -33,6 +33,43 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
   @override
   Widget build(BuildContext context) {
     final wishes = ref.watch(wishesProvider);
+
+    Size screenSize = MediaQuery.of(context).size;
+
+    Widget getWideWishesWidget(List<Wish> wishes) {
+      int crossAxisCount = 0;
+      if (screenSize.width > 1400) {
+        crossAxisCount = 3;
+      } else if (screenSize.width > 900) {
+        crossAxisCount = 3;
+      } else if (screenSize.width >= 600) {
+        crossAxisCount = 2;
+      }
+
+      return GridView.count(
+        shrinkWrap: true,
+        physics: BouncingScrollPhysics(),
+        crossAxisCount: crossAxisCount,
+        children: wishes.map((wish) => WishCardShort(wish: wish)).toList(),
+      );
+    }
+
+    Widget getSmallWishesWidget(List<Wish> wishes) {
+      final Wish wish = wishes[0];
+      return SizedBox(
+        height: 300,
+        child: WishCardShort(
+          wish: wish,
+        ),
+      );
+    }
+
+    getWishWidget(List<Wish> wishes) {
+      if (screenSize.width > 600) {
+        return getWideWishesWidget(wishes);
+      }
+      return getSmallWishesWidget(wishes);
+    }
 
     return SingleChildScrollView(
       child: Container(
@@ -70,7 +107,7 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
                     radius: 40.0,
                   ),
                 ),
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(left: 20.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -78,20 +115,14 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
                     children: [
                       Text(
                         'Welcome back 👋 ',
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 5,
                       ),
                       Text(
                         'Carolina Lemke',
-                        style: TextStyle(
-                          fontSize: 24.0,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ],
                   ),
@@ -99,18 +130,15 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
               ],
             ),
             const SizedBox(height: 45.0),
-            const Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'My events',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                SizedBox(height: 10.0),
-                EventCategoriesCircled(),
+                const SizedBox(height: 10.0),
+                const EventCategoriesCircled(),
               ],
             ),
             const SizedBox(height: 45.0),
@@ -119,26 +147,17 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
+                    Text(
                       'My wishes',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     TextButton(
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.black, // Text Color
-                      ),
                       onPressed: () => {
                         _navigateToAllWishes(context),
                       },
-                      child: const Text(
+                      child: Text(
                         'show all',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
                   ],
@@ -150,8 +169,8 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     } else {
-                      final Wish wish = wishes[0];
-                      return WishCardShort(wish: wish);
+                      final List<Wish> wishesData = wishes;
+                      return getWishWidget(wishesData);
                     }
                   },
                 ),

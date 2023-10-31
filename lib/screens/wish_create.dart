@@ -6,7 +6,6 @@ import 'package:wishes_app/models/categories.dart';
 import 'package:wishes_app/providers/wishes_provider.dart';
 import 'package:wishes_app/widgets/image_input.dart';
 
-
 class CreateWishScreen extends ConsumerStatefulWidget {
   const CreateWishScreen({super.key});
 
@@ -32,7 +31,14 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
         _isSending = true;
       });
 
-      ref.read(wishesProvider.notifier).addWish(
+      // ref.read(wishesProvider.notifier).addWish(
+      //       _wishTitle,
+      //       _wishPrice,
+      //       _selectedCategory,
+      //       _itemUrl,
+      //       _selectedImage,
+      //     );
+      ref.read(wishesProvider.notifier).pocketAddWish(
             _wishTitle,
             _wishPrice,
             _selectedCategory,
@@ -52,12 +58,6 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Make a new wish!"),
-        foregroundColor: Colors.black,
-        iconTheme: const IconThemeData(
-          color: Colors.black,
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
         automaticallyImplyLeading: false,
       ),
       floatingActionButton: FloatingActionButton(
@@ -81,15 +81,8 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
                   const SizedBox(height: 30.0),
                   SizedBox(
                     child: TextFormField(
-                      cursorColor: Colors.black,
                       decoration: const InputDecoration(
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        floatingLabelAlignment: FloatingLabelAlignment.center,
                         label: Text('Name your wish'),
-                        labelStyle: TextStyle(color: Colors.black),
-                        hintStyle: TextStyle(color: Colors.black),
                       ),
                       validator: (value) {
                         if (value == null ||
@@ -108,15 +101,8 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
                   const SizedBox(height: 60.0),
                   SizedBox(
                     child: TextFormField(
-                      cursorColor: Colors.black,
                       decoration: const InputDecoration(
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        floatingLabelAlignment: FloatingLabelAlignment.center,
                         label: Text('Wish price'),
-                        labelStyle: TextStyle(color: Colors.black),
-                        hintStyle: TextStyle(color: Colors.black),
                       ),
                       keyboardType: TextInputType.number,
                       validator: (value) {
@@ -136,15 +122,8 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
                   const SizedBox(height: 60.0),
                   SizedBox(
                     child: TextFormField(
-                      cursorColor: Colors.black,
                       decoration: const InputDecoration(
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        floatingLabelAlignment: FloatingLabelAlignment.center,
                         label: Text('Link to wish'),
-                        labelStyle: TextStyle(color: Colors.black),
-                        hintStyle: TextStyle(color: Colors.black),
                       ),
                       validator: (value) {
                         if (value == null ||
@@ -163,15 +142,8 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
                   const SizedBox(height: 60.0),
                   SizedBox(
                     child: TextFormField(
-                      cursorColor: Colors.black,
                       decoration: const InputDecoration(
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        floatingLabelAlignment: FloatingLabelAlignment.center,
                         label: Text('Link to image'),
-                        labelStyle: TextStyle(color: Colors.black),
-                        hintStyle: TextStyle(color: Colors.black),
                       ),
                       validator: (value) {
                         if (value == null ||
@@ -190,11 +162,6 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
                   const SizedBox(height: 60.0),
                   SizedBox(
                     child: DropdownButtonFormField(
-                      decoration: const InputDecoration(
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                      ),
                       value: _selectedCategory,
                       items: [
                         for (final category in categories.entries)
@@ -245,14 +212,9 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
                               },
                         child: const Text(
                           'Reset',
-                          style: TextStyle(color: Colors.black),
                         ),
                       ),
                       ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.black),
-                        ),
                         onPressed: _isSending ? null : _saveItem,
                         child: _isSending
                             ? const SizedBox(

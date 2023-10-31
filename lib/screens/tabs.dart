@@ -45,14 +45,11 @@ class _TabsScreenState extends State<TabsScreen> {
         height: 65,
         child: FloatingActionButton(
           onPressed: () => _navigateToPageFAB(context),
-          backgroundColor: Colors.black,
-          foregroundColor: Colors.white,
           child: const Icon(Icons.add),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.black,
         onTap: _selectPage,
         currentIndex: _selectedPageIndex,
         items: const [

@@ -12,9 +12,11 @@ class Category {
     this.title,
     this.color,
     this.icon,
+    this.type,
   );
 
   final String title;
   final Color color;
   final Icon icon;
+  final Categories type;
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wishes_app/models/wish.dart';
 
 class WishCardShort extends StatelessWidget {
@@ -10,23 +11,27 @@ class WishCardShort extends StatelessWidget {
 
   final Wish wish;
 
+  Future<void> _launchUrl() async {
+    final Uri _url = Uri.parse(wish.itemUrl);
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
       clipBehavior: Clip.hardEdge,
       elevation: 2,
       child: InkWell(
-        onTap: () {},
+        onTap: () => _launchUrl(),
         child: Stack(
           children: [
             FadeInImage(
               placeholder: MemoryImage(kTransparentImage),
               image: NetworkImage(wish.imageUrl),
               fit: BoxFit.cover,
-              height: 300,
+              height: double.infinity,
               width: double.infinity,
             ),
             Positioned(
@@ -47,31 +52,34 @@ class WishCardShort extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              wish.title,
-                              style: const TextStyle(
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.w600,
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      wish.title,
+                                      softWrap: false,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(context).textTheme.titleMedium
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            Text(
-                              '\$${wish.price}',
-                              style: TextStyle(
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.w800,
+                              SizedBox(height: 5.0,),
+                              Text(
+                                '\$${wish.price}',
+                                style: Theme.of(context).textTheme.bodyLarge
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                        Column(
-                          children: [
-                            Icon(Icons.arrow_forward),
-                          ],
-                        )
+                        const Icon(Icons.arrow_forward),
                       ],
                     ),
                   ),

@@ -39,6 +39,9 @@ dependencies:
   image_picker: ^1.0.4
   flutter_riverpod: ^2.4.4
   riverpod_annotation: ^2.2.1
+  url_launcher: ^6.1.14
+  google_fonts: ^6.1.0
+  pocketbase: ^0.16.0
 
 dev_dependencies:
   flutter_test:
