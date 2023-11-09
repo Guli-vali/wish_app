@@ -30,14 +30,6 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
       setState(() {
         _isSending = true;
       });
-
-      // ref.read(wishesProvider.notifier).addWish(
-      //       _wishTitle,
-      //       _wishPrice,
-      //       _selectedCategory,
-      //       _itemUrl,
-      //       _selectedImage,
-      //     );
       ref.read(wishesProvider.notifier).pocketAddWish(
             _wishTitle,
             _wishPrice,

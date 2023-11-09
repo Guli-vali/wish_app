@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:wishes_app/providers/auth_provider.dart';
 import 'package:wishes_app/screens/friends.dart';
+import 'package:wishes_app/screens/signin_screen.dart';
 
 import 'package:wishes_app/screens/tabs.dart';
 import 'package:wishes_app/screens/wide_screen_tabs.dart';
+import 'package:wishes_app/services/api_service.dart';
+
+final pocketbaseApiService = ApiServicePocketBase();
 
 var kColorScheme = const ColorScheme.light();
 
@@ -23,18 +28,20 @@ final theme = ThemeData().copyWith(
     elevation: 0.0,
     surfaceTintColor: Colors.transparent,
   ),
-  textTheme: GoogleFonts.latoTextTheme().copyWith(
-    titleMedium: TextStyle().copyWith(
-      fontWeight: FontWeight.w700,
-    ),
-    titleLarge: TextStyle().copyWith(
-      fontWeight: FontWeight.w700,
-      fontSize: 30,
-    ),
-    titleSmall: TextStyle().copyWith(
-      fontWeight: FontWeight.w700,
-    ),
-  ).apply(
+  textTheme: GoogleFonts.latoTextTheme()
+      .copyWith(
+        titleMedium: TextStyle().copyWith(
+          fontWeight: FontWeight.w700,
+        ),
+        titleLarge: TextStyle().copyWith(
+          fontWeight: FontWeight.w700,
+          fontSize: 30,
+        ),
+        titleSmall: TextStyle().copyWith(
+          fontWeight: FontWeight.w700,
+        ),
+      )
+      .apply(
         bodyColor: Colors.black,
       ),
   cardTheme: const CardTheme().copyWith(
@@ -102,18 +109,37 @@ void main() {
   );
 }
 
-class WishesApp extends StatelessWidget {
+class WishesApp extends ConsumerStatefulWidget {
   const WishesApp({super.key});
 
   @override
+  ConsumerState<WishesApp> createState() => _WishesAppState();
+}
+
+class _WishesAppState extends ConsumerState<WishesApp> {
+  late Future<void> _authFuture;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _authFuture = ref.read(authProvider.notifier).autoLogin();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
     return MaterialApp(
       theme: theme,
-      // home: const MainScreen(),
-      routes: {
-        '/': (context) => MainScreen(),
-        '/friends': (context) => FriendsScreen(),
-      },
+      home: authState
+          ? const MainScreen()
+          : FutureBuilder(
+              future: _authFuture,
+              builder: (context, snapshot) =>
+                  snapshot.connectionState == ConnectionState.waiting
+                      ? const CircularProgressIndicator()
+                      : const LoginScreen(),
+            ),
     );
   }
 }
@@ -133,7 +159,7 @@ class _MainScreenState extends State<MainScreen> {
         if (constraints.maxWidth < 600) {
           return const TabsScreen();
         }
-        return WideTabsScreen();
+        return const WideTabsScreen();
       },
     );
   }
