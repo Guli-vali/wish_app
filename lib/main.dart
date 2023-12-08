@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wishes_app/providers/auth_provider.dart';
@@ -8,9 +9,6 @@ import 'package:wishes_app/screens/signin_screen.dart';
 
 import 'package:wishes_app/screens/tabs.dart';
 import 'package:wishes_app/screens/wide_screen_tabs.dart';
-import 'package:wishes_app/services/api_service.dart';
-
-final pocketbaseApiService = ApiServicePocketBase();
 
 var kColorScheme = const ColorScheme.light();
 
@@ -20,7 +18,6 @@ var kColorScheme = const ColorScheme.light();
 // );
 
 final theme = ThemeData().copyWith(
-  useMaterial3: true,
   colorScheme: kColorScheme,
   appBarTheme: const AppBarTheme().copyWith(
     foregroundColor: Colors.black,
@@ -28,16 +25,16 @@ final theme = ThemeData().copyWith(
     elevation: 0.0,
     surfaceTintColor: Colors.transparent,
   ),
-  textTheme: GoogleFonts.latoTextTheme()
+  textTheme: GoogleFonts.robotoTextTheme()
       .copyWith(
-        titleMedium: TextStyle().copyWith(
+        titleMedium: const TextStyle().copyWith(
           fontWeight: FontWeight.w700,
         ),
-        titleLarge: TextStyle().copyWith(
+        titleLarge: const TextStyle().copyWith(
           fontWeight: FontWeight.w700,
           fontSize: 30,
         ),
-        titleSmall: TextStyle().copyWith(
+        titleSmall: const TextStyle().copyWith(
           fontWeight: FontWeight.w700,
         ),
       )
@@ -68,7 +65,7 @@ final theme = ThemeData().copyWith(
       style: TextButton.styleFrom(
     foregroundColor: Colors.black,
   )),
-  bottomNavigationBarTheme: BottomNavigationBarThemeData().copyWith(
+  bottomNavigationBarTheme: const BottomNavigationBarThemeData().copyWith(
     selectedItemColor: Colors.black,
     unselectedItemColor: Colors.black,
   ),
@@ -91,13 +88,20 @@ final theme = ThemeData().copyWith(
       floatingLabelAlignment: FloatingLabelAlignment.center),
   textSelectionTheme: const TextSelectionThemeData().copyWith(
     cursorColor: Colors.black,
-    selectionColor: Color.fromARGB(255, 149, 138, 138),
+    selectionColor: const Color.fromARGB(255, 149, 138, 138),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ButtonStyle(
       backgroundColor: MaterialStateProperty.all<Color>(Colors.black),
     ),
   ),
+  outlinedButtonTheme: OutlinedButtonThemeData(
+    style: ButtonStyle(
+      backgroundColor: MaterialStateProperty.all<Color>(Colors.white),
+      foregroundColor: MaterialStateProperty.all<Color>(Colors.black),
+      overlayColor: MaterialStateProperty.all<Color>(const Color.fromARGB(255, 222, 222, 222)),
+    ),
+  )
 );
 
 void main() {

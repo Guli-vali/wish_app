@@ -29,7 +29,7 @@ class _WideTabsScreenState extends State<WideTabsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget activePage = WishesScreen();
+    Widget activePage = const WishesScreen();
 
     switch (_selectedPageIndex) {
       case 1:
@@ -42,33 +42,31 @@ class _WideTabsScreenState extends State<WideTabsScreen> {
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
-        child: Container(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              NavigationRail(
-                onDestinationSelected: _selectPage,
-                destinations: const [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.favorite_border_outlined),
-                    label: Text(
-                      'My Wishes',
-                    ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            NavigationRail(
+              onDestinationSelected: _selectPage,
+              destinations: const [
+                NavigationRailDestination(
+                  icon: Icon(Icons.favorite_border_outlined),
+                  label: Text(
+                    'My Wishes',
                   ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.emoji_emotions_outlined),
-                    label: Text(
-                      'Friends',
-                    ),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.emoji_emotions_outlined),
+                  label: Text(
+                    'Friends',
                   ),
-                ],
-                selectedIndex: _selectedPageIndex,
-              ),
-              Expanded(
-                child: activePage,
-              ),
-            ],
-          ),
+                ),
+              ],
+              selectedIndex: _selectedPageIndex,
+            ),
+            Expanded(
+              child: activePage,
+            ),
+          ],
         ),
       ),
     );

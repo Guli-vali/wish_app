@@ -7,7 +7,7 @@ class Wish {
   final String imageUrl;
   final String title;
   final int price;
-  final String itemUrl;
+  final String? itemUrl;
   final Category category;
 
 
@@ -16,7 +16,7 @@ class Wish {
     required this.imageUrl,
     required this.title,
     required this.price,
-    required this.itemUrl,
     required this.category,
+    this.itemUrl,
   });
 }

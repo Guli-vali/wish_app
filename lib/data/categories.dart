@@ -27,4 +27,10 @@ const categories = {
     Icon(Icons.favorite_border),
     Categories.wedding,
   ),
+  Categories.various: Category(
+    'Other',
+    Color.fromARGB(35, 233, 0, 0),
+    Icon(Icons.grade_outlined),
+    Categories.various,
+  ),
 };

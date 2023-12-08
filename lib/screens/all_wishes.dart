@@ -46,7 +46,7 @@ class _AllWishesScreenState extends ConsumerState<AllWishesScreen> {
 
       return GridView.count(
         shrinkWrap: true,
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         crossAxisCount: crossAxisCount,
         children: wishes.map((wish) => WishCardBig(wish: wish)).toList(),
       );

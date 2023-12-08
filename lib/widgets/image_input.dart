@@ -4,9 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageInput extends StatefulWidget {
-  const ImageInput({super.key, required this.onPickImage});
+  const ImageInput({
+    super.key,
+    required this.onPickImage,
+    this.circled = false,
+    this.title = 'Upload picture',
+  });
 
   final void Function(File image) onPickImage;
+  final bool circled;
+  final String title;
 
   @override
   State<ImageInput> createState() {
@@ -20,7 +27,7 @@ class _ImageInputState extends State<ImageInput> {
   void _takePicture() async {
     final imagePicker = ImagePicker();
     final pickedImage =
-        await imagePicker.pickImage(source: ImageSource.camera, maxWidth: 600);
+        await imagePicker.pickImage(source: ImageSource.gallery, maxWidth: 600);
 
     if (pickedImage == null) {
       return;
@@ -37,10 +44,10 @@ class _ImageInputState extends State<ImageInput> {
   Widget build(BuildContext context) {
     Widget content = TextButton.icon(
       icon: const Icon(
-        Icons.camera,
+        Icons.upload,
       ),
-      label: const Text(
-        'Take Picture',
+      label: Text(
+        widget.title,
       ),
       onPressed: _takePicture,
     );
@@ -57,6 +64,21 @@ class _ImageInputState extends State<ImageInput> {
       );
     }
 
+    if (widget.circled) {
+      return Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            width: 1,
+            color: Colors.black.withOpacity(0.2),
+          ),
+        ),
+        height: 150,
+        width: double.infinity,
+        alignment: Alignment.center,
+        child: content,
+      );
+    }
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -64,7 +86,7 @@ class _ImageInputState extends State<ImageInput> {
           color: Colors.black.withOpacity(0.2),
         ),
       ),
-      height: 250,
+      height: 200,
       width: double.infinity,
       alignment: Alignment.center,
       child: content,

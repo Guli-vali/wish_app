@@ -55,7 +55,7 @@ class _CategoryWishesState extends ConsumerState<CategoryWishes> {
 
       return GridView.count(
         shrinkWrap: true,
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         crossAxisCount: crossAxisCount,
         children: wishes.map((wish) => WishCardBig(wish: wish)).toList(),
       );
@@ -75,7 +75,7 @@ class _CategoryWishesState extends ConsumerState<CategoryWishes> {
         return Center(
           child: Text(
             'No wishes yet 👀 ',
-            style: Theme.of(context).textTheme.displaySmall,
+            style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.black.withOpacity(0.25)),
           ),
         );
       }
@@ -149,7 +149,7 @@ class _CategoryWishesState extends ConsumerState<CategoryWishes> {
                 ),
                 const SizedBox(height: 20.0),
                 if (screenSize.width < 600)
-                  if (!wishes.isEmpty)
+                  if (wishes.isNotEmpty)
                     Center(
                       child: ToggleButtons(
                         direction: Axis.horizontal,

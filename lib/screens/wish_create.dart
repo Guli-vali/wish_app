@@ -17,25 +17,27 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
   final _formKey = GlobalKey<FormState>();
   var _wishTitle = '';
   var _wishPrice = 0;
-  var _selectedCategory = categories[Categories.birthday]!;
+  var _selectedCategory = categories[Categories.various]!;
 
   var _itemUrl = 'My shiny wish!';
-  var _selectedImage =
-      'https://play-lh.googleusercontent.com/MyV7rU-Os71tVpRBb3pPYxVen4dCPOt_2HRP0zyXiuE3wGRwFM6KyWb1zlHPmJLvN1o';
+  // ignore: prefer_typing_uninitialized_variables
+  var _selectedPhoto;
   var _isSending = false;
 
   void _saveItem() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
+
       setState(() {
         _isSending = true;
       });
-      ref.read(wishesProvider.notifier).pocketAddWish(
+
+      await ref.read(wishesProvider.notifier).pocketAddWish(
             _wishTitle,
             _wishPrice,
             _selectedCategory,
             _itemUrl,
-            _selectedImage,
+            _selectedPhoto,
           );
 
       if (!context.mounted) {
@@ -71,127 +73,83 @@ class _CreateWishScreenState extends ConsumerState<CreateWishScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 30.0),
-                  SizedBox(
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        label: Text('Name your wish'),
-                      ),
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            value.trim().length <= 1 ||
-                            value.trim().length > 60) {
-                          return 'Must be between 1 and 60 characters.';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        _wishTitle = value!;
-                      },
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      label: Text('Name your wish'),
                     ),
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          value.trim().length <= 1 ||
+                          value.trim().length > 60) {
+                        return 'Must be between 1 and 60 characters.';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _wishTitle = value!;
+                    },
                   ),
                   const SizedBox(height: 60.0),
-                  SizedBox(
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        label: Text('Wish price'),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            int.tryParse(value) == null ||
-                            int.tryParse(value)! <= 0) {
-                          return 'Must be a valid, positive number.';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        _wishPrice = int.parse(value!);
-                      },
+                  TextFormField(
+                    initialValue: '0',
+                    decoration: const InputDecoration(
+                      prefixText: '\$',
+                      label: Text('Wish price'),
                     ),
+                    keyboardType: TextInputType.number,
+                    onSaved: (value) {
+                      _wishPrice = int.parse(value!);
+                    },
                   ),
                   const SizedBox(height: 60.0),
-                  SizedBox(
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        label: Text('Link to wish'),
-                      ),
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            value.trim().length <= 1 ||
-                            value.trim().length > 500) {
-                          return 'Must be between 1 and 500 characters.';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        _itemUrl = value!;
-                      },
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      label: Text('Link to wish'),
                     ),
+                    onSaved: (value) {
+                      _itemUrl = value!;
+                    },
                   ),
                   const SizedBox(height: 60.0),
-                  SizedBox(
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        label: Text('Link to image'),
-                      ),
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            value.trim().length <= 1 ||
-                            value.trim().length > 500) {
-                          return 'Must be between 1 and 500 characters.';
-                        }
-                        return null;
-                      },
-                      onSaved: (value) {
-                        _selectedImage = value!;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 60.0),
-                  SizedBox(
-                    child: DropdownButtonFormField(
-                      value: _selectedCategory,
-                      items: [
-                        for (final category in categories.entries)
-                          DropdownMenuItem(
-                            value: category.value,
-                            child: Row(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: category.value.color,
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(16),
-                                    ),
+                  DropdownButtonFormField(
+                    value: _selectedCategory,
+                    items: [
+                      for (final category in categories.entries)
+                        DropdownMenuItem(
+                          value: category.value,
+                          child: Row(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: category.value.color,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(16),
                                   ),
-                                  width: 16,
-                                  height: 16,
                                 ),
-                                const SizedBox(width: 6),
-                                Text(category.value.title),
-                              ],
-                            ),
+                                width: 16,
+                                height: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(category.value.title),
+                            ],
                           ),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCategory = value!;
-                        });
+                        ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedCategory = value!;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 30.0),
+                  SizedBox(
+                    child: ImageInput(
+                      onPickImage: (image) {
+                        _selectedPhoto = image;
                       },
                     ),
                   ),
-                  SizedBox(height: 60.0),
-                  // SizedBox(
-                  //   child: ImageInput(
-                  //     onPickImage: (image) {
-                  //       _selectedImage = image;
-                  //     },
-                  //   ),
-                  // ),
                   const SizedBox(height: 30.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

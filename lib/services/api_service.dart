@@ -1,5 +1,6 @@
-import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,44 +20,87 @@ class ApiServicePocketBase {
 
   Future createWish({
     required title,
-    required price,
-    required category,
-    required itemUrl,
-    required selectedImage,
+    required creator,
+    int price = 0,
+    String category = 'Other',
+    String? itemUrl,
+    File? selectedPhoto,
   }) async {
     final body = <String, dynamic>{
       'title': title,
       'price': price,
       'category': category,
+      'imageUrl': 'https://i.imgur.com/Fu24wgy.jpg',
       'itemUrl': itemUrl,
-      'imageUrl': selectedImage,
+      'creator': creator,
     };
-    final record = await pb.collection('wishes').create(body: body);
-    return record.toJson();
+
+    // check if image attached
+    List<http.MultipartFile> files = [];
+    if (selectedPhoto != null) {
+      files.add(
+        await http.MultipartFile.fromPath('photoUrl', selectedPhoto.path),
+      );
+    }
+
+    final record =
+        await pb.collection('wishes').create(body: body, files: files);
+    var recordMap = record.toJson();
+
+    recordMap['imageUrl'] = recordMap['imageUrl'];
+    if (selectedPhoto != null) {
+      recordMap['imageUrl'] =
+          pb.files.getUrl(record, record.data['photoUrl']).toString();
+    }
+
+    return recordMap;
   }
 
   Future getWishes() async {
     final records = await pb.collection(_COLLECTION_NAME).getFullList(
-          sort: '-created',
+          sort: '-created'
         );
-    return records;
+    var recordMap = [];
+    for (final rec in records) {
+      var recordJson = rec.toJson();
+
+      if (!rec.data['photoUrl'].isEmpty){
+        recordJson['imageUrl'] =
+            pb.files.getUrl(rec, rec.data['photoUrl']).toString();
+      }
+      recordMap.add(recordJson);
+    }
+    return recordMap;
   }
 
   Future logIn({
     required email,
     required password,
   }) async {
-    final authData = await pb.collection('users').authWithPassword(
-          email,
-          password,
-        );
+    try {
+      final authData = await pb.collection('users').authWithPassword(
+            email,
+            password,
+          );
+      // save auth related prefKeys
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString(PrefKeys.accessTokenPrefsKey, pb.authStore.token);
+      prefs.setString(
+          PrefKeys.accessModelPrefsKey, pb.authStore.model.id ?? '');
 
-    // save auth related prefKeys
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(PrefKeys.accessTokenPrefsKey, pb.authStore.token);
-    prefs.setString(PrefKeys.accessModelPrefsKey, pb.authStore.model.id ?? '');
-
-    return authData.toJson();
+      return authData.toJson();
+    } on ClientException catch (ex) {
+      if (ex.statusCode == 400) {
+        throw ClientException(
+            originalError:
+                'Authentication failed. Please check your username/password');
+      }
+      if (ex.isAbort) {
+        throw ClientException(
+            originalError:
+                'Sorry, it appears our server are currently down. We are working to address the problem. Please try again later');
+      }
+    }
   }
 
   Future<void> logOut() async {
@@ -75,16 +119,23 @@ class ApiServicePocketBase {
     if (!pb.authStore.isValid) {
       return false;
     }
-    tryRefreshToken();
-    return pb.authStore.isValid;
+    final loginState = await tryRefreshToken();
+    return loginState;
   }
 
   Future<bool> tryRefreshToken() async {
     if (pb.authStore.isValid) {
-        final prefs = await SharedPreferences.getInstance();
+      final prefs = await SharedPreferences.getInstance();
+      try {
         await pb.collection('users').authRefresh();
-        prefs.setString(PrefKeys.accessTokenPrefsKey, pb.authStore.token);
-        prefs.setString(PrefKeys.accessModelPrefsKey, pb.authStore.model.id ?? '');
+      } on ClientException catch (ex) {
+        if (ex.statusCode == 401) {
+          return false;
+        }
+      }
+      prefs.setString(PrefKeys.accessTokenPrefsKey, pb.authStore.token);
+      prefs.setString(
+          PrefKeys.accessModelPrefsKey, pb.authStore.model.id ?? '');
     }
     return pb.authStore.isValid;
   }
@@ -94,26 +145,60 @@ class ApiServicePocketBase {
     required email,
     required password,
     required passwordConfirm,
+    File? selectedAvatar,
   }) async {
-    final body = <String, dynamic>{
-      "email": email,
-      "emailVisibility": true,
-      "password": password,
-      "passwordConfirm": passwordConfirm,
-      "name": name
-    };
-    final record = await pb.collection('users').create(body: body);
-    return record.toJson();
+    try {
+      final body = <String, dynamic>{
+        "email": email,
+        "emailVisibility": true,
+        "password": password,
+        "passwordConfirm": passwordConfirm,
+        "name": name,
+      };
+    
+      List<http.MultipartFile> files = [];
+      if (selectedAvatar != null) {
+        files.add(
+          await http.MultipartFile.fromPath('avatar', selectedAvatar.path),
+        );
+      } else {
+        var bytes = (await rootBundle.load('assets/images/avatar_placeholder1.png')).buffer.asUint8List();
+        files.add(
+          http.MultipartFile.fromBytes('avatar', bytes, filename: 'avatar_placeholder1.png'),
+        );
+      }
+
+      final record = await pb.collection('users').create(body: body, files: files);
+      return record.toJson();
+    } on ClientException catch (ex) {
+      if (ex.statusCode == 400) {
+        throw ClientException(
+            originalError:
+                'Sign up failed. Please check all the values you submit');
+      }
+      if (ex.statusCode == 403) {
+        throw ClientException(
+            originalError: 'We are sorry, this action restricted');
+      }
+      if (ex.isAbort) {
+        throw ClientException(
+            originalError:
+                'Sorry, it appears our server are currently down. We are working to address the problem. Please try again later');
+      }
+    }
   }
 
   Future getProfile(String modelId) async {
     final record = await pb.collection('users').getOne(
           modelId,
         );
-    var record_map = record.toJson();
-    record_map['avatar_url_full'] = pb.files
+    var recordMap = record.toJson();
+    recordMap['avatar_url_full'] = pb.files
         .getUrl(record, record.data['avatar'], thumb: '100x250')
         .toString();
-    return record_map;
+    return recordMap;
   }
 }
+
+
+final pocketbaseApiService = ApiServicePocketBase();

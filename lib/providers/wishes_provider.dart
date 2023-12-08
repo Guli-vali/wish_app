@@ -1,40 +1,44 @@
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wishes_app/data/categories.dart';
 import 'package:wishes_app/models/categories.dart';
+import 'package:wishes_app/models/pref_keys.dart';
 import 'package:wishes_app/models/wish.dart';
 import 'package:wishes_app/services/api_service.dart';
 
-class WishesNotifier extends StateNotifier<List<Wish>> {
-  WishesNotifier() : super(const []);
+class WishesNotifier extends Notifier<List<Wish>> {
+  @override
+  List<Wish> build() => const [];
 
-  final pocketbaseApiService = ApiServicePocketBase();
-
-  void pocketAddWish(
+  Future<void> pocketAddWish(
     String title,
     int price,
     Category category,
-    String itemUrl,
-    String selectedImage,
+    String? itemUrl,
+    File? selectedPhoto,
   ) async {
-    final createdWish = await pocketbaseApiService.createWish(
-      title: title,
-      price: price,
-      category: category.title,
-      itemUrl: itemUrl,
-      selectedImage: selectedImage,
-    );
-
-    final newWish = Wish(
-        id: createdWish['id'],
-        imageUrl: selectedImage,
+      final prefs = await SharedPreferences.getInstance();
+      final creatorModelId = prefs.getString(PrefKeys.accessModelPrefsKey)!;
+      final createdWish = await pocketbaseApiService.createWish(
         title: title,
         price: price,
+        category: category.title,
         itemUrl: itemUrl,
-        category: category);
+        selectedPhoto: selectedPhoto,
+        creator: creatorModelId,
+      );
 
-    state = [newWish, ...state];
+      final newWish = Wish(
+          id: createdWish['id'],
+          imageUrl: createdWish['imageUrl'],
+          title: title,
+          price: price,
+          itemUrl: itemUrl,
+          category: category);
+
+      state = [newWish, ...state];
   }
 
   Future<void> pocketLoadWishes() async {
@@ -43,26 +47,23 @@ class WishesNotifier extends StateNotifier<List<Wish>> {
     final List<Wish> loadedItems = [];
     for (final item in wishes) {
       final category = categories.entries
-          .firstWhere(
-              (catItem) => catItem.value.title == item.data['category'])
+          .firstWhere((catItem) => catItem.value.title == item['category'])
           .value;
-  
+
       loadedItems.add(
         Wish(
-          id: item.id,  
-          title: item.data['title'],
-          price: item.data['price'],
+          id: item['id'],
+          title: item['title'],
+          price: item['price'],
           category: category,
-          itemUrl: item.data['itemUrl'],
-          imageUrl: item.data['imageUrl'],
+          itemUrl: item['itemUrl'],
+          imageUrl: item['imageUrl'],
         ),
       );
     }
     state = loadedItems;
   }
-
 }
 
-final wishesProvider = StateNotifierProvider<WishesNotifier, List<Wish>>(
-  (ref) => WishesNotifier(),
-);
+final wishesProvider =
+    NotifierProvider<WishesNotifier, List<Wish>>(WishesNotifier.new);

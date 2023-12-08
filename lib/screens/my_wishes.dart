@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:transparent_image/transparent_image.dart';
 import 'package:wishes_app/models/wish.dart';
 import 'package:wishes_app/providers/profile_provider.dart';
 import 'package:wishes_app/providers/wishes_provider.dart';
@@ -23,8 +22,8 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
   @override
   void initState() {
     super.initState();
-    _wishesFuture = ref.read(wishesProvider.notifier).pocketLoadWishes();
     _profileFuture = ref.read(profileProvider.notifier).getProfile();
+    _wishesFuture = ref.read(wishesProvider.notifier).pocketLoadWishes();
   }
 
   void _navigateToAllWishes(BuildContext context) {
@@ -54,19 +53,27 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
 
       return GridView.count(
         shrinkWrap: true,
-        physics: BouncingScrollPhysics(),
+        physics: const BouncingScrollPhysics(),
         crossAxisCount: crossAxisCount,
         children: wishes.map((wish) => WishCardShort(wish: wish)).toList(),
       );
     }
 
     Widget getSmallWishesWidget(List<Wish> wishes) {
-      final Wish wish = wishes[0];
+      Widget widgetSwitch = Center(
+        child: Text(
+          'No wishes yet 👀 ',
+          style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.black.withOpacity(0.25)),
+        ),
+      );
+      if (wishes.isNotEmpty) {
+        widgetSwitch = WishCardShort(
+          wish: wishes.first,
+        );
+      }
       return SizedBox(
         height: 300,
-        child: WishCardShort(
-          wish: wish,
-        ),
+        child: widgetSwitch,
       );
     }
 
@@ -93,15 +100,15 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
                           ? const Center(child: CircularProgressIndicator())
                           : ProfileWidget(profile: profile),
                 ),
-              const Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Icon(
-                    Icons.notifications_none,
-                    size: 38.0,
-                  ),
-                ],
-              ),
+                const Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Icon(
+                      Icons.notifications_none,
+                      size: 38.0,
+                    ),
+                  ],
+                ),
               ],
             ),
             const SizedBox(height: 45.0),

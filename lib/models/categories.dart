@@ -5,6 +5,7 @@ enum Categories {
   newyear,
   womensday,
   wedding,
+  various,
 }
 
 class Category {

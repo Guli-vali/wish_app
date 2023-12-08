@@ -29,7 +29,7 @@ class _TabsScreenState extends State<TabsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget activePage = WishesScreen();
+    Widget activePage = const WishesScreen();
 
     switch (_selectedPageIndex) {
       case 1:
