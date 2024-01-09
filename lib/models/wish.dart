@@ -9,6 +9,7 @@ class Wish {
   final int price;
   final String? itemUrl;
   final Category category;
+  final String? creatorAvatarUrl;
 
 
   const Wish({
@@ -17,6 +18,7 @@ class Wish {
     required this.title,
     required this.price,
     required this.category,
+    this.creatorAvatarUrl,
     this.itemUrl,
   });
 }

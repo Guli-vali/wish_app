@@ -41,9 +41,10 @@ dependencies:
   riverpod_annotation: ^2.2.1
   url_launcher: ^6.1.14
   google_fonts: ^6.1.0
-  pocketbase: ^0.16.0
+  pocketbase: ^0.17.0
   shared_preferences: ^2.2.2
   http: ^1.1.2
+  flutter_staggered_grid_view: ^0.7.0
 
 dev_dependencies:
   flutter_test:

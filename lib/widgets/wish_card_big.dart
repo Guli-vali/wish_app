@@ -25,7 +25,7 @@ class WishCardBig extends StatelessWidget {
       clipBehavior: Clip.hardEdge,
       elevation: 2,
       child: InkWell(
-        onTap: () => (wish.itemUrl != null) ? _launchUrl() : DoNothingAction() ,
+        onTap: () => (wish.itemUrl != null) ? _launchUrl() : DoNothingAction(),
         child: Stack(
           children: [
             FadeInImage(

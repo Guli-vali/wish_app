@@ -4,11 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wishes_app/providers/auth_provider.dart';
-import 'package:wishes_app/screens/friends.dart';
+import 'package:wishes_app/screens/feed_screen.dart';
 import 'package:wishes_app/screens/signin_screen.dart';
 
 import 'package:wishes_app/screens/tabs.dart';
-import 'package:wishes_app/screens/wide_screen_tabs.dart';
 
 var kColorScheme = const ColorScheme.light();
 
@@ -158,13 +157,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < 600) {
-          return const TabsScreen();
-        }
-        return const WideTabsScreen();
-      },
-    );
+    return const TabsScreen();
   }
 }

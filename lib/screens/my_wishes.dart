@@ -4,6 +4,7 @@ import 'package:wishes_app/models/wish.dart';
 import 'package:wishes_app/providers/profile_provider.dart';
 import 'package:wishes_app/providers/wishes_provider.dart';
 import 'package:wishes_app/screens/all_wishes.dart';
+import 'package:wishes_app/screens/friends_screen.dart';
 import 'package:wishes_app/widgets/events_categories_circled.dart';
 import 'package:wishes_app/widgets/profile_info.dart';
 import 'package:wishes_app/widgets/wish_card_short.dart';
@@ -30,6 +31,14 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (ctx) => const AllWishesScreen(),
+      ),
+    );
+  }
+
+  void _navigateToFriends(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) => const FriendsScreen(),
       ),
     );
   }
@@ -63,7 +72,10 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
       Widget widgetSwitch = Center(
         child: Text(
           'No wishes yet 👀 ',
-          style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.black.withOpacity(0.25)),
+          style: Theme.of(context)
+              .textTheme
+              .headlineSmall!
+              .copyWith(color: Colors.black.withOpacity(0.25)),
         ),
       );
       if (wishes.isNotEmpty) {
@@ -100,13 +112,16 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
                           ? const Center(child: CircularProgressIndicator())
                           : ProfileWidget(profile: profile),
                 ),
-                const Column(
+                Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Icon(
-                      Icons.notifications_none,
-                      size: 38.0,
-                    ),
+                    IconButton(
+                      onPressed: () => {_navigateToFriends(context)},
+                      icon: const Icon(
+                        Icons.emoji_people_outlined,
+                        size: 38.0,
+                      ),
+                    )
                   ],
                 ),
               ],
@@ -134,9 +149,7 @@ class _WishesScreenState extends ConsumerState<WishesScreen> {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     TextButton(
-                      onPressed: () => {
-                        _navigateToAllWishes(context),
-                      },
+                      onPressed: () => {_navigateToAllWishes(context)},
                       child: Text(
                         'show all',
                         style: Theme.of(context).textTheme.bodyLarge,

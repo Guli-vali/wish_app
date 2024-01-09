@@ -1,12 +1,12 @@
 
 import 'package:flutter/material.dart';
 
-const List<Widget> presentationMode = <Widget>[
+const List<Widget> presentationMode = [
   Row(
     children: [
       Padding(
         padding: EdgeInsets.all(8.0),
-        child: Text('Slide Show'),
+        child: Text('slide show'),
       ),
     ],
   ),
@@ -14,7 +14,7 @@ const List<Widget> presentationMode = <Widget>[
     children: [
       Padding(
         padding: EdgeInsets.all(8.0),
-        child: Text('List'),
+        child: Text('list'),
       ),
     ],
   ),

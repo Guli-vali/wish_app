@@ -41,8 +41,8 @@ class WishesNotifier extends Notifier<List<Wish>> {
       state = [newWish, ...state];
   }
 
-  Future<void> pocketLoadWishes() async {
-    final wishes = await pocketbaseApiService.getWishes();
+  Future<void> pocketLoadWishes({bool currentUserOnly = true}) async {
+    final wishes = await pocketbaseApiService.getWishes(currentUserOnly: currentUserOnly);
 
     final List<Wish> loadedItems = [];
     for (final item in wishes) {
@@ -58,6 +58,7 @@ class WishesNotifier extends Notifier<List<Wish>> {
           category: category,
           itemUrl: item['itemUrl'],
           imageUrl: item['imageUrl'],
+          creatorAvatarUrl: item['avatarUrlFull'],
         ),
       );
     }

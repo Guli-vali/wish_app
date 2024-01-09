@@ -108,7 +108,7 @@ class _AllWishesScreenState extends ConsumerState<AllWishesScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: false,
-        title: const Text(""),
+        title: const Text("My wishes"),
       ),
       body: SafeArea(
         bottom: false,
@@ -118,11 +118,6 @@ class _AllWishesScreenState extends ConsumerState<AllWishesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'My wishes',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 20.0),
                 if (screenSize.width < 600)
                   Center(
                     child: ToggleButtons(

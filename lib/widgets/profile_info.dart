@@ -77,8 +77,9 @@ class _ProfileWidgetState extends ConsumerState<ProfileWidget> {
               ),
             ),
             IconButton(
-                onPressed: () => logOut(),
-                icon: const Icon(Icons.logout_rounded))
+              onPressed: () => logOut(),
+              icon: const Icon(Icons.logout_rounded),
+            ),
           ],
         ),
       ],
