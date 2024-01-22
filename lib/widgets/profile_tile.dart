@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:wishes_app/models/profile.dart';
 
@@ -8,7 +7,7 @@ class ProfileTile extends StatelessWidget {
     required this.profile,
   });
 
-  final userProfile profile;
+  final UserProfile profile;
 
   @override
   Widget build(BuildContext context) {

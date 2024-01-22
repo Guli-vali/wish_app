@@ -1,16 +1,11 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:transparent_image/transparent_image.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:wishes_app/models/friend_request.dart';
 import 'package:wishes_app/models/profile.dart';
 import 'package:wishes_app/providers/friend_requests_provider.dart';
 import 'package:wishes_app/providers/friends_provider.dart';
 import 'package:wishes_app/providers/users_provider.dart';
-import 'package:wishes_app/providers/wishes_provider.dart';
 import 'package:wishes_app/services/api_service.dart';
 import 'package:wishes_app/widgets/friend_request_tile.dart';
 import 'package:wishes_app/widgets/profile_tile.dart';
@@ -36,16 +31,14 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
     _friendsFuture = ref.read(friendsProvider.notifier).getAuthUserFriends();
     _friendRequestsFuture =
         ref.read(friendRequestsProvider.notifier).getRecords();
-    final TextEditingController _textEditingController =
-        TextEditingController();
   }
 
   void _navigateToAddFriend(
     BuildContext context,
-    List<userProfile> profiles,
+    List<UserProfile> profiles,
   ) {
     Widget friendsList(
-      List<userProfile> profiles,
+      List<UserProfile> profiles,
     ) {
       return ListView.separated(
         shrinkWrap: true,
@@ -114,7 +107,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
     final users = ref.watch(usersProvider);
 
     Widget friendsList(
-      List<userProfile> profiles,
+      List<UserProfile> profiles,
     ) {
       return ListView.separated(
         shrinkWrap: true,

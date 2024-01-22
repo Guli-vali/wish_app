@@ -6,9 +6,9 @@ import 'package:wishes_app/providers/friend_requests_provider.dart';
 import 'package:wishes_app/providers/friends_provider.dart';
 import 'package:wishes_app/services/api_service.dart';
 
-class UserNotifier extends Notifier<List<userProfile>> {
+class UserNotifier extends Notifier<List<UserProfile>> {
   @override
-  List<userProfile> build() => const [];
+  List<UserProfile> build() => const [];
 
   Future<void> getUsersForSearch() async {
 
@@ -27,10 +27,10 @@ class UserNotifier extends Notifier<List<userProfile>> {
     final searchQury = ref.read(searchQueryProvider);
     final friends = await pocketbaseApiService.getUsers(searchQury);
 
-    final List<userProfile> loadedItems = [];
+    final List<UserProfile> loadedItems = [];
     for (final item in friends) {
       loadedItems.add(
-        userProfile(
+        UserProfile(
           id: item['id'],
           avatarUrl: item['avatar_url_full'],
           name: item['name'],
@@ -46,7 +46,7 @@ class UserNotifier extends Notifier<List<userProfile>> {
   }
 }
 final usersProvider =
-    NotifierProvider<UserNotifier, List<userProfile>>(UserNotifier.new);
+    NotifierProvider<UserNotifier, List<UserProfile>>(UserNotifier.new);
 
 
 class UserSearchNotifier extends Notifier<String> {

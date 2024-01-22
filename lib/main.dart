@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wishes_app/providers/auth_provider.dart';
-import 'package:wishes_app/screens/feed_screen.dart';
 import 'package:wishes_app/screens/signin_screen.dart';
 
 import 'package:wishes_app/screens/tabs.dart';
@@ -133,6 +132,7 @@ class _WishesAppState extends ConsumerState<WishesApp> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: theme,
       home: authState
           ? const MainScreen()

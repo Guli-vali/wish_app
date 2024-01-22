@@ -4,12 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:pocketbase/pocketbase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wishes_app/models/friend_request.dart';
 import 'package:wishes_app/models/pref_keys.dart';
 
 class ApiServicePocketBase {
   // ignore: constant_identifier_names
-  static const _BASE_URL = 'http://127.0.0.1:8090';
+  // static const _BASE_URL = 'http://127.0.0.1:8090';
+  // static const _BASE_URL = 'http://10.0.2.2:8090';
+  // ignore: constant_identifier_names
+  static const _BASE_URL = 'https://pb.talktoaliens.space/';
+
   // ignore: constant_identifier_names
   static const _COLLECTION_NAME = 'wishes';
 
@@ -31,7 +34,7 @@ class ApiServicePocketBase {
       'title': title,
       'price': price,
       'category': category,
-      'imageUrl': 'https://i.imgur.com/Fu24wgy.jpg',
+      'imageUrl': 'https://i.imgur.com/cZvNXvu.png',
       'itemUrl': itemUrl,
       'creator': creator,
     };
@@ -217,7 +220,7 @@ class ApiServicePocketBase {
     final records = await pb.collection('users').getList(
           page: 1,
           perPage: 5,
-          filter: 'id != "${pb.authStore.model.id}" && name ?~ "${searchQury}"',
+          filter: 'id != "${pb.authStore.model.id}" && name ?~ "$searchQury"',
         );
 
     var recordMap = [];
@@ -233,19 +236,12 @@ class ApiServicePocketBase {
   Future getAuthenticatedUserFriends() async {
     final records = await pb.collection('friends').getFullList(
           sort: '-created',
-          expand: 'friend,user',
+          expand: 'friend',
         );
 
     var recordMap = [];
     for (final rec in records) {
       final friendRecord = rec.expand['friend']!.first;
-      final userRecord = rec.expand['user']!.first;
-
-      var userItemMap = userRecord.toJson();
-      userItemMap['avatar_url_full'] = pb.files
-          .getUrl(userRecord, userRecord.data['avatar'], thumb: '100x250')
-          .toString();
-      recordMap.add(userItemMap);
 
       var itemMap = friendRecord.toJson();
       itemMap['avatar_url_full'] = pb.files
@@ -288,17 +284,16 @@ class ApiServicePocketBase {
   }
 
   Future sendFriendRequest(Map frequest) async {
-
     final body = <String, dynamic>{
       "to_user": frequest['toUser'],
       "from_user": frequest['fromUser'],
     };
 
     final record = await pb.collection('friends_requests').create(
-      body: body,
-      expand: 'to_user,from_user',
-    );
-  
+          body: body,
+          expand: 'to_user,from_user',
+        );
+
     var itemMap = record.toJson();
 
     final toUserRecord = record.expand['to_user']!.first;
@@ -313,25 +308,40 @@ class ApiServicePocketBase {
     var fromUserItemMap = fromUserRecord.toJson();
     itemMap['from_user'] = fromUserItemMap;
     itemMap['from_user']['avatarUrl'] = pb.files
-        .getUrl(fromUserRecord, fromUserRecord.data['avatar'],
-            thumb: '100x250')
+        .getUrl(fromUserRecord, fromUserRecord.data['avatar'], thumb: '100x250')
         .toString();
-
 
     return itemMap;
   }
 
   Future acceptFriendRequestWorkflow(Map frequest) async {
+    final toUserId = frequest['toUser']['id'];
+    final fromUserId = frequest['fromUser']['id'];
+
     // create friend record
-    final body = <String, dynamic>{
-      "user": frequest['toUser']['id'],
-      "friend": frequest['fromUser']['id'],
+    final bodyUserTo = <String, dynamic>{
+      "user": toUserId,
+      "friend": fromUserId,
+    };
+    final bodyUserFrom = <String, dynamic>{
+      "user": fromUserId,
+      "friend": toUserId,
     };
 
-    final record = await pb.collection('friends').create(body: body);
+    await pb.collection('friends').create(body: bodyUserTo);
+    await pb.collection('friends').create(body: bodyUserFrom);
 
-    // delete friend_request record
+    // delete all friend_requests related to user record
     await pb.collection('friends_requests').delete(frequest['id']);
+
+    // delete outcoming friend request if persists too
+    final resultFrom = await pb.collection('friends_requests').getFullList(
+      filter: 'from_user.id = "$toUserId" && to_user.id = "$fromUserId"',
+    );
+
+    if (resultFrom.isNotEmpty){
+      await pb.collection('friends_requests').delete(resultFrom.first.id);
+    }
 
     return frequest['fromUser'];
   }

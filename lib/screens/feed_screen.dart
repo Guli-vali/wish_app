@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:wishes_app/models/wish.dart';
+import 'package:wishes_app/providers/feed_wishes_provider.dart';
 import 'package:wishes_app/providers/wishes_provider.dart';
 
 class FeedScreen extends ConsumerStatefulWidget {
@@ -15,12 +17,12 @@ class FeedScreen extends ConsumerStatefulWidget {
 }
 
 class _FeedScreenState extends ConsumerState<FeedScreen> {
-  late Future<void> _wishesFuture;
+  late Future<void> _feedWishesFuture;
 
   @override
   void initState() {
     super.initState();
-    _wishesFuture = ref.read(wishesProvider.notifier).pocketLoadWishes(currentUserOnly:false);
+    _feedWishesFuture = ref.read(feedWishesProvider.notifier).fetchWishes();
   }
 
   Future<void> _launchUrl(wish) async {
@@ -32,7 +34,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final wishes = ref.watch(wishesProvider);
+    final wishes = ref.watch(feedWishesProvider);
 
     double w = MediaQuery.of(context).size.width;
 
@@ -69,7 +71,108 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
       crossAxisCount = 1;
     }
 
-    // double crossAxisCount = w / (itemwidth);
+    Widget getFeedView(List<Wish> wishes) {
+      return MasonryGridView.count(
+        itemCount: wishes.length,
+        mainAxisSpacing: 10,
+        crossAxisCount: crossAxisCount.toInt(),
+        itemBuilder: (context, index) {
+          int randomHeight = Random().nextInt(6);
+          return UnconstrainedBox(
+            child: SizedBox(
+              width: itemwidth,
+              height: (randomHeight % 5 + 2) * 100,
+              child: Card(
+                clipBehavior: Clip.hardEdge,
+                elevation: 2,
+                child: InkWell(
+                  onTap: () => (wishes[index].itemUrl != null)
+                      ? _launchUrl(wishes[index])
+                      : DoNothingAction(),
+                  child: Stack(
+                    children: [
+                      FadeInImage(
+                        placeholder: MemoryImage(kTransparentImage),
+                        image: NetworkImage(wishes[index].imageUrl),
+                        fit: BoxFit.cover,
+                        height: double.infinity,
+                        width: double.infinity,
+                      ),
+                      Positioned(
+                        top: 20,
+                        left: 20,
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                Text(wishes[index].category.title.toString()),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        top: 20,
+                        right: 20,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.3),
+                                spreadRadius: 5,
+                                blurRadius: 7,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: CircleAvatar(
+                            backgroundImage:
+                                NetworkImage(wishes[index].creatorAvatarUrl!),
+                            maxRadius: 20.0,
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 10,
+                        left: 20,
+                        right: 20,
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          elevation: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  wishes[index].title,
+                                  style:
+                                      Theme.of(context).textTheme.titleSmall!,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -89,110 +192,12 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           )
         else
           Expanded(
-            child: MasonryGridView.count(
-              itemCount: wishes.length,
-              mainAxisSpacing: 10,
-              crossAxisCount: crossAxisCount.toInt(),
-              itemBuilder: (context, index) {
-                int randomHeight = Random().nextInt(6);
-                return UnconstrainedBox(
-                  child: SizedBox(
-                    width: itemwidth,
-                    height: (randomHeight % 5 + 2) * 100,
-                    child: Card(
-                      clipBehavior: Clip.hardEdge,
-                      elevation: 2,
-                      child: InkWell(
-                        onTap: () => (wishes[index].itemUrl != null)
-                            ? _launchUrl(wishes[index])
-                            : DoNothingAction(),
-                        child: Stack(
-                          children: [
-                            FadeInImage(
-                              placeholder: MemoryImage(kTransparentImage),
-                              image: NetworkImage(wishes[index].imageUrl),
-                              fit: BoxFit.cover,
-                              height: double.infinity,
-                              width: double.infinity,
-                            ),
-                            Positioned(
-                              top: 20,
-                              left: 20,
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Column(
-                                    children: [
-                                      Text(wishes[index]
-                                          .category
-                                          .title
-                                          .toString()),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              top: 20,
-                              right: 20,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.3),
-                                      spreadRadius: 5,
-                                      blurRadius: 7,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                      wishes[index].creatorAvatarUrl!),
-                                  maxRadius: 20.0,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 10,
-                              left: 20,
-                              right: 20,
-                              child: Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16.0),
-                                ),
-                                elevation: 2,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        wishes[index].title,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall!,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+            child: FutureBuilder(
+              future: _feedWishesFuture,
+              builder: (context, snapshot) =>
+                  snapshot.connectionState == ConnectionState.waiting
+                      ? const Center(child: CircularProgressIndicator())
+                      : getFeedView(wishes),
             ),
           ),
       ],

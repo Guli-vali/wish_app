@@ -2,8 +2,8 @@ import 'package:wishes_app/models/profile.dart';
 
 class FriendRequestWithID {
   final String id;
-  final userProfile fromUser;
-  final userProfile toUser;
+  final UserProfile fromUser;
+  final UserProfile toUser;
 
   const FriendRequestWithID({
     required this.id,

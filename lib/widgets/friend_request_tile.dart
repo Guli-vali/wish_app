@@ -10,7 +10,7 @@ class FriendRequestModalTile extends StatelessWidget {
     required this.onSendFRequest,
   });
 
-  final userProfile profile;
+  final UserProfile profile;
   final FriendRequest friendRequest;
   final Function onSendFRequest;
 
@@ -89,7 +89,7 @@ class FriendRequestTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget getPreparedTile(userProfile user, String btnText, bool disabled) {
+    Widget getPreparedTile(UserProfile user, String btnText, bool disabled) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -17,13 +17,13 @@ class FriendRequestsNotifier extends Notifier<List<FriendRequestWithID>> {
       loadedItems.add(
         FriendRequestWithID(
           id: item['id'],
-          fromUser: userProfile(
+          fromUser: UserProfile(
             id: item['from_user']['id'],
             avatarUrl: item['from_user']['avatarUrl'],
             name: item['from_user']['name'],
             email: item['from_user']['email'],
           ),
-          toUser: userProfile(
+          toUser: UserProfile(
             id: item['to_user']['id'],
             avatarUrl: item['to_user']['avatarUrl'],
             name: item['to_user']['name'],
@@ -42,13 +42,13 @@ class FriendRequestsNotifier extends Notifier<List<FriendRequestWithID>> {
 
     final addedFriendRequest = FriendRequestWithID(
       id: createdFriendRequest['id'],
-      fromUser: userProfile(
+      fromUser: UserProfile(
         id: createdFriendRequest['from_user']['id'],
         avatarUrl: createdFriendRequest['from_user']['avatarUrl'],
         name: createdFriendRequest['from_user']['name'],
         email: createdFriendRequest['from_user']['email'],
       ),
-      toUser: userProfile(
+      toUser: UserProfile(
         id: createdFriendRequest['to_user']['id'],
         avatarUrl: createdFriendRequest['to_user']['avatarUrl'],
         name: createdFriendRequest['to_user']['name'],
@@ -59,12 +59,21 @@ class FriendRequestsNotifier extends Notifier<List<FriendRequestWithID>> {
     state = [addedFriendRequest, ...state];
   }
 
-  removeFriendRequest(String fRequestId) async {
+  removeFriendRequestById(String fRequestId) async {
     // Again, our state is immutable. So we're making a new list instead of
     // changing the existing list.
     state = [
       for (final fRequest in state)
         if (fRequest.id != fRequestId) fRequest,
+    ];
+  }
+
+  removeFriendRequestBySender(String fromUserId) async {
+    // Again, our state is immutable. So we're making a new list instead of
+    // changing the existing list.
+    state = [
+      for (final fRequest in state)
+        if (!(fRequest.fromUser.id == fromUserId || fRequest.toUser.id == fromUserId)) fRequest,
     ];
   }
 }

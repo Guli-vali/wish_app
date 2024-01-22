@@ -10,8 +10,8 @@ class Profile {
   final String email;
 }
 
-class userProfile {
-  const userProfile({
+class UserProfile {
+  const UserProfile({
     required this.id,
     required this.avatarUrl,
     required this.name,
