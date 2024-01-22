@@ -1,10 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:wishes_app/models/wish.dart';
+import 'package:wishes_app/providers/profile_provider.dart';
+import 'package:wishes_app/providers/wishes_provider.dart';
 import 'package:wishes_app/screens/all_wishes.dart';
+import 'package:wishes_app/screens/friends_screen.dart';
 import 'package:wishes_app/widgets/events_categories_circled.dart';
+import 'package:wishes_app/widgets/profile_info.dart';
 import 'package:wishes_app/widgets/wish_card_short.dart';
 
-class WishesScreen extends StatelessWidget {
+class WishesScreen extends ConsumerStatefulWidget {
   const WishesScreen({super.key});
+
+  @override
+  ConsumerState<WishesScreen> createState() => _WishesScreenState();
+}
+
+class _WishesScreenState extends ConsumerState<WishesScreen> {
+  late Future<void> _wishesFuture;
+  late Future<void> _profileFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileFuture = ref.read(profileProvider.notifier).getProfile();
+    _wishesFuture = ref.read(wishesProvider.notifier).pocketLoadWishes();
+  }
 
   void _navigateToAllWishes(BuildContext context) {
     Navigator.of(context).push(
@@ -14,122 +35,144 @@ class WishesScreen extends StatelessWidget {
     );
   }
 
+  void _navigateToFriends(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) => const FriendsScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Icon(
-                Icons.notifications_none,
-                size: 38.0,
-              ),
-            ],
-          ),
-          const SizedBox(height: 5),
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: const Offset(0, 3),
-                    ),
+    final wishes = ref.watch(wishesProvider);
+    final profile = ref.watch(profileProvider);
+
+    Size screenSize = MediaQuery.of(context).size;
+
+    Widget getWideWishesWidget(List<Wish> wishes) {
+      int crossAxisCount = 0;
+      if (screenSize.width > 1400) {
+        crossAxisCount = 4;
+      } else if (screenSize.width > 900) {
+        crossAxisCount = 3;
+      } else if (screenSize.width >= 600) {
+        crossAxisCount = 2;
+      }
+
+      return GridView.count(
+        shrinkWrap: true,
+        physics: const BouncingScrollPhysics(),
+        crossAxisCount: crossAxisCount,
+        children: wishes.map((wish) => WishCardShort(wish: wish)).toList(),
+      );
+    }
+
+    Widget getSmallWishesWidget(List<Wish> wishes) {
+      Widget widgetSwitch = Center(
+        child: Text(
+          'No wishes yet 👀 ',
+          style: Theme.of(context)
+              .textTheme
+              .headlineSmall!
+              .copyWith(color: Colors.black.withOpacity(0.25)),
+        ),
+      );
+      if (wishes.isNotEmpty) {
+        widgetSwitch = WishCardShort(
+          wish: wishes.first,
+        );
+      }
+      return SizedBox(
+        height: 300,
+        child: widgetSwitch,
+      );
+    }
+
+    getWishWidget(List<Wish> wishes) {
+      if (screenSize.width > 600) {
+        return getWideWishesWidget(wishes);
+      }
+      return getSmallWishesWidget(wishes);
+    }
+
+    return SingleChildScrollView(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                FutureBuilder(
+                  future: _profileFuture,
+                  builder: (context, snapshot) =>
+                      snapshot.connectionState == ConnectionState.waiting
+                          ? const Center(child: CircularProgressIndicator())
+                          : ProfileWidget(profile: profile),
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () => {_navigateToFriends(context)},
+                      icon: const Icon(
+                        Icons.emoji_people_outlined,
+                        size: 38.0,
+                      ),
+                    )
                   ],
                 ),
-                child: const CircleAvatar(
-                  backgroundImage:
-                      AssetImage('assets/images/avatar_example.png'),
-                  radius: 40.0,
+              ],
+            ),
+            const SizedBox(height: 45.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'My events',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(left: 20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 10.0),
+                const EventCategoriesCircled(),
+              ],
+            ),
+            const SizedBox(height: 45.0),
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Welcome back 👋 ',
-                      style: TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      'My wishes',
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      'Carolina Lemke',
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.w700,
+                    TextButton(
+                      onPressed: () => {_navigateToAllWishes(context)},
+                      child: Text(
+                        'show all',
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
                     ),
                   ],
                 ),
-              )
-            ],
-          ),
-          const SizedBox(height: 45.0),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'My events',
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
+                const SizedBox(height: 20.0),
+                FutureBuilder(
+                  future: _wishesFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else {
+                      final List<Wish> wishesData = wishes;
+                      return getWishWidget(wishesData);
+                    }
+                  },
                 ),
-              ),
-              SizedBox(height: 10.0),
-              EventCategoriesCircled(),
-            ],
-          ),
-          const SizedBox(height: 45.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'My wishes',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.black, // Text Color
-                    ),
-                    onPressed: () => {
-                      _navigateToAllWishes(context),
-                    },
-                    child: const Text(
-                      'show all',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20.0),
-              WishCardShort(),
-            ],
-          )
-        ],
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

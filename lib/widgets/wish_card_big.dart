@@ -1,95 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:wishes_app/models/wish.dart';
+import 'package:wishes_app/widgets/wish_card_overlayed_titles.dart';
 
 class WishCardBig extends StatelessWidget {
-  const WishCardBig({super.key});
+  const WishCardBig({
+    super.key,
+    required this.wish,
+  });
+
+  final Wish wish;
+
+  Future<void> _launchUrl() async {
+    final Uri url = Uri.parse(wish.itemUrl!);
+    if (!await launchUrl(url)) {
+      throw Exception('Could not launch $url');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 223, 243, 249),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        width: 350,
-        height: 300,
-        child: Column(
+    return Card(
+      clipBehavior: Clip.hardEdge,
+      elevation: 2,
+      child: InkWell(
+        onTap: () => (wish.itemUrl != null) ? _launchUrl() : DoNothingAction(),
+        child: Stack(
           children: [
-            Image.asset(
-              'assets/images/card_example_1.png',
-              fit: BoxFit.contain,
-              width: 350,
-              height: 300,
+            FadeInImage(
+              placeholder: MemoryImage(kTransparentImage),
+              image: NetworkImage(wish.imageUrl),
+              fit: BoxFit.cover,
+              height: double.infinity,
+              width: double.infinity,
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(
-                horizontal: 10.0,
-              ),
+            Positioned(
+              top: 20,
+              left: 20,
               child: Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16.0),
                 ),
-                elevation: 2,
                 child: Padding(
-                  padding: EdgeInsets.all(15.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Polaroid Go White',
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 5.0),
-                          const Text(
-                            '\$300',
-                            style: TextStyle(
-                              fontSize: 26.0,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 18.0),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const SizedBox(
-                                width: 240,
-                                child: Text(
-                                  'https://www.polaroid.com/collections/now-plus-camera',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                              FloatingActionButton(
-                                heroTag: null,
-                                mini: true,
-                                backgroundColor: Colors.white,
-                                onPressed: () {},
-                                child: const Icon(
-                                  Icons.copy_all,
-                                  size: 15,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(wish.category.title.toString()),
                 ),
               ),
-            )
+            ),
+            Positioned(
+              bottom: 20,
+              left: 10,
+              right: 10,
+              child: WideTitle(wish: wish)
+            ),
           ],
         ),
       ),
